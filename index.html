@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot Centralizado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #aaa;
+            position: fixed;
+            top: 50%;       /* centraliza verticalmente */
+            left: 50%;      /* centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* corrige posição para o centro exato */
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .chat-messages {
+            height: 250px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 10px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .bot {
+            color: green;
+            margin: 5px 0;
+        }
+
+        .user {
+            color: blue;
+            margin: 5px 0;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">Chatbot 🤖</div>
+    <div class="chat-messages" id="messages">
+        <div class="bot">Olá! Como posso te ajudar?</div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="input" placeholder="Digite aqui...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+
+<script>
+const messages = document.getElementById("messages");
+const input = document.getElementById("input");
+const chatMemory = []; // memória das últimas mensagens
+
+function addMessage(text, className) {
+    messages.innerHTML += `<div class="${className}">${text}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function botReply(text) {
+    let response = "Ainda não entendi totalmente 🤔. Pode explicar melhor?";
+
+    // "Oi"
+    if (text.match(/oi|olá|ola|eai|hey/)) {
+        const respostasOi = [
+            "Olá! 😊 Que bom te ver por aqui. Como posso te ajudar hoje?",
+            "Oi! 😄 Tudo bem? Quer conversar comigo?",
+            "E aí! 😃 Como posso te ajudar?"
+        ];
+        response = respostasOi[Math.floor(Math.random() * respostasOi.length)];
+    } 
+    // "Nome"
+    else if (text.includes("nome")) {
+        const respostasNome = [
+            "Eu sou um assistente virtual simples 🤖",
+            "Pode me chamar de Chatbot! 😊",
+            "Sou um bot feito para conversar com você!"
+        ];
+        response = respostasNome[Math.floor(Math.random() * respostasNome.length)];
+    } 
+    // "Ajuda"
+    else if (text.includes("ajuda")) {
+        const respostasAjuda = [
+            "Claro! Posso explicar conceitos simples e responder perguntas básicas.",
+            "Sim! Estou aqui para ajudar você no que puder 😊",
+            "Com certeza! Pode me perguntar qualquer coisa simples."
+        ];
+        response = respostasAjuda[Math.floor(Math.random() * respostasAjuda.length)];
+    } 
+    // "Como você funciona"
+    else if (text.includes("como você funciona")) {
+        response = "Eu uso regras simples em JavaScript para identificar palavras-chave e responder com base nelas.";
+    } 
+    // "Quem é você"
+    else if (text.includes("quem é você")) {
+        response = "Sou um assistente virtual criado para ajudar você 😊";
+    } 
+    // "Array"
+    else if (text.includes("array")) {
+        if(chatMemory.some(msg => msg.includes("javascript"))) {
+            response = "Ah, você quer aprender sobre arrays em JavaScript! Eles guardam vários valores juntos e são muito úteis.";
+        } else {
+            response = "Array é uma lista de valores. Se quiser, posso te mostrar um exemplo em JavaScript!";
+        }
+    } 
+    // "JavaScript"
+    else if (text.includes("javascript")) {
+        response = "JavaScript é uma linguagem de programação que roda no navegador e no servidor.";
+    } 
+    // "Programação"
+    else if (text.includes("programação")) {
+        response = "Programar é divertido e ajuda a resolver problemas de forma lógica 😄";
+    } 
+    // "Estudo"
+    else if (text.includes("estudo")) {
+        response = "Estudar é ótimo! 📚 Quer que eu te dê algumas dicas de estudo?";
+    } 
+    // "Sim"
+    else if (text.includes("sim")) {
+        if(chatMemory.some(msg => msg.includes("dicas de estudo"))) {
+            response = "Ótimo! Aqui vai uma dica: divida seus estudos em blocos de 25 minutos e faça pausas curtas! 📚";
+        } else {
+            response = "Que bom! 😊 Pode me contar mais detalhes?";
+        }
+    } 
+    // "Não"
+    else if (text.includes("não") || text.includes("nao")) {
+        response = "Tudo bem 😅 Se quiser, podemos falar sobre outra coisa!";
+    } 
+    // "Obrigado / Valeu"
+    else if (text.includes("obrigado") || text.includes("valeu")) {
+        response = "De nada! 😊 Sempre que precisar, estou aqui para ajudar.";
+    }
+
+    setTimeout(() => addMessage(response, "bot"), 500);
+}
+
+function sendMessage() {
+    const text = input.value.trim().toLowerCase();
+    if (!text) return;
+
+    addMessage(input.value, "user");
+    chatMemory.push(text); // adiciona à memória
+    if(chatMemory.length > 10) chatMemory.shift(); // mantém últimas 10 mensagens
+    botReply(text);
+    input.value = "";
+}
+
+input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
